@@ -127,8 +127,39 @@ module.exports = BuyMeCoffee;
 EOF
 
 # Step 8: Deploying the smart contract
-echo "Deploying the smart contract..."
-yes | npx hardhat ignition deploy ./ignition/modules/deploy.ts --network somnia
+echo "Do you want to deploy multiple contracts?"
+read -p "Enter the number of contracts to deploy: " COUNT
+
+# Validate input (must be a number)
+if ! [[ "$COUNT" =~ ^[0-9]+$ ]]; then
+  echo "Please enter a valid number!"
+  exit 1
+fi
+
+for ((i=1; i<=COUNT; i++))
+do
+  echo "🚀 Deploying contract $i..."
+
+  # Deploy the contract and extract the contract address
+  CONTRACT_ADDRESS=$(yes | npx hardhat ignition deploy ./ignition/modules/deploy.ts --network somnia --reset | grep -oE '0x[a-fA-F0-9]{40}')
+
+  # Check if an address was retrieved
+  if [[ -z "$CONTRACT_ADDRESS" ]]; then
+    echo "❌ Unable to retrieve contract address!"
+    exit 1
+  fi
+
+  echo "✅ Contract $i deployed at: $CONTRACT_ADDRESS"
+  echo "-----------------------------------"
+
+  # Generate a random wait time between 9-15 seconds
+  RANDOM_WAIT=$((RANDOM % 7 + 9))
+  echo "⏳ Waiting for $RANDOM_WAIT seconds before deploying the next contract..."
+  sleep $RANDOM_WAIT
+done
+
+echo "🎉 Successfully deployed $COUNT contracts!"
+
 
 
 
