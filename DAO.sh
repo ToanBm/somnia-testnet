@@ -21,9 +21,9 @@ npx hardhat init
 
 # Step 3: Update hardhat.config.js with the proper configuration
 echo "Creating new hardhat.config file..."
-rm hardhat.config.ts
+rm hardhat.config.js
 
-cat <<'EOF' > hardhat.config.ts
+cat <<'EOF' > hardhat.config.js
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox-viem";
 import * as dotenv from "dotenv";
@@ -146,7 +146,7 @@ EOF
 echo "Creating deploy script..."
 rm ignition/modules/Lock.ts
 
-cat <<'EOF' > ignition/modules/deploy.ts
+cat <<'EOF' > ignition/modules/deploy.js
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
 const dao = buildModule("DAO", (m) => {
@@ -159,7 +159,7 @@ EOF
 
 # Step 8: Deploying the smart contract
 echo "Deploying your DAO smart contract..."
-npx hardhat ignition deploy ./ignition/modules/deploy.ts --network somnia
+npx hardhat ignition deploy ./ignition/modules/deploy.js --network somnia
 
 echo "🎉 Successfully deployed $COUNT contracts!"
 
