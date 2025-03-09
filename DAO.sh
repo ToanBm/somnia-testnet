@@ -24,13 +24,10 @@ echo "Creating new hardhat.config file..."
 rm hardhat.config.js
 
 cat <<'EOF' > hardhat.config.js
-import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox-viem";
-import * as dotenv from "dotenv";
+require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
 
-dotenv.config();
-
-const config: HardhatUserConfig = {
+module.exports = {
   solidity: "0.8.28",
   networks: {
     somnia: {
@@ -39,8 +36,6 @@ const config: HardhatUserConfig = {
     },
   },
 };
-
-export default config;
 EOF
 
 # Step 4: Create MyToken.sol contract
@@ -144,17 +139,15 @@ EOF
  
 # Step 7: Create deploy script
 echo "Creating deploy script..."
-rm ignition/modules/Lock.ts
+rm ignition/modules/Lock.js
 
 cat <<'EOF' > ignition/modules/deploy.js
-import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
+const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
 
-const dao = buildModule("DAO", (m) => {
-  const contract = m.contract("DAO");
-  return { contract };
+module.exports = buildModule("DAO", (m) => {
+  const dao = m.contract("DAO");
+  return { dao };
 });
-
-module.exports = dao;
 EOF
 
 # Step 8: Deploying the smart contract
@@ -163,5 +156,40 @@ npx hardhat ignition deploy ./ignition/modules/deploy.js --network somnia
 
 echo "🎉 Successfully deployed $COUNT contracts!"
 
+# Step 7: Create test script
+echo "Creating test script..."
+rm test/Lock.js
 
+cat <<'EOF' > test/DAO.test.js
+const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
+describe("DAO", function () {
+  let dao;
+  let owner, addr1;
+
+  beforeEach(async function () {
+    const DAO = await ethers.getContractFactory("DAO");
+    dao = await DAO.deploy();
+    await dao.waitForDeployment(); // Chờ contract deploy xong
+    [owner, addr1] = await ethers.getSigners();
+  });
+
+  it("Should allow deposits and update voting power", async function () {
+    await dao.connect(addr1).deposit({ value: ethers.parseEther("0.001") });
+    expect(await dao.votingPower(addr1.address)).to.equal(ethers.parseEther("0.001"));
+  });
+
+  it("Should allow proposal creation", async function () {
+    await dao.connect(addr1).deposit({ value: ethers.parseEther("0.001") });
+    await dao.connect(addr1).createProposal("Test Proposal");
+    const proposal = await dao.proposals(0);
+    expect(proposal.description).to.equal("Test Proposal");
+  });
+});
+EOF
+
+# Step 8: Testing the smart contract
+echo "Testing your DAO smart contract..."
+
+npx hardhat test
