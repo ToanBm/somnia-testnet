@@ -152,8 +152,8 @@ do
   echo "✅ Contract $i deployed at: $CONTRACT_ADDRESS"
   echo "-----------------------------------"
 
-  # Generate a random wait time between 9-15 seconds
-  RANDOM_WAIT=$((RANDOM % 7 + 9))
+  # Generate a random wait time between 20-30 seconds
+  RANDOM_WAIT=$((RANDOM % 11 + 20))
   echo "⏳ Waiting for $RANDOM_WAIT seconds before deploying the next contract..."
   sleep $RANDOM_WAIT
 done
