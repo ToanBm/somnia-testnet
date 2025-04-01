@@ -141,21 +141,22 @@ EOF
 mkdir -p scripts
 
 cat <<'EOF' > scripts/deploy.js
-require("dotenv").config();
 const { ethers } = require("hardhat");
 
 async function main() {
+  // Lấy tài khoản deploy
   const [deployer] = await ethers.getSigners();
   console.log(`Deploying contracts with account: ${deployer.address}`);
 
+  // Lấy số dư
   const balance = await ethers.provider.getBalance(deployer.address);
   console.log(`Account balance: ${ethers.formatEther(balance)} ETH`);
 
+  // Triển khai hợp đồng DAO
   const DAO = await ethers.getContractFactory("DAO");
   const dao = await DAO.deploy();
 
   console.log("Deploying DAO...");
-  await new Promise(r => setTimeout(r, 5000)); // Thêm delay
   await dao.waitForDeployment();
 
   console.log(`DAO deployed at: ${dao.target}`);
@@ -170,11 +171,11 @@ main()
 EOF
 
 # Waiting.....
-sleep 3
+sleep 5
 
 # Step 8: Deploying the smart contract
 echo "Deploying your DAO smart contract..."
-npx hardhat ignition deploy ./ignition/modules/deploy.ts --network somnia
+npx hardhat run scripts/deploy.js --network somnia
 
 echo "🎉 Successfully deployed $COUNT contracts!"
 
