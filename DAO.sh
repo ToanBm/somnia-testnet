@@ -138,17 +138,35 @@ PRIVATE_KEY=$PRIVATE_KEY
 EOF
  
 # Step 7: Create deploy script
-rm ignition/module/deploy.js
+mkdir -p scripts
 
-cat <<'EOF' > ignition/module/deploy.js
-import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
+cat <<'EOF' > scripts/deploy.js
+require("dotenv").config();
+const { ethers } = require("hardhat");
 
-const dao = buildModule("DAO", (m) => {
-  const contract = m.contract("DAO");
-  return { contract };
-});
+async function main() {
+  const [deployer] = await ethers.getSigners();
+  console.log(`Deploying contracts with account: ${deployer.address}`);
 
-module.exports = dao;
+  const balance = await ethers.provider.getBalance(deployer.address);
+  console.log(`Account balance: ${ethers.formatEther(balance)} ETH`);
+
+  const DAO = await ethers.getContractFactory("DAO");
+  const dao = await DAO.deploy();
+
+  console.log("Deploying DAO...");
+  await new Promise(r => setTimeout(r, 5000)); // Thêm delay
+  await dao.waitForDeployment();
+
+  console.log(`DAO deployed at: ${dao.target}`);
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
 EOF
 
 # Waiting.....
