@@ -139,20 +139,41 @@ EOF
  
 # Step 7: Create deploy script
 echo "Creating deploy script..."
-rm ignition/modules/Lock.js
+mkdir scripts
 
-cat <<'EOF' > ignition/modules/deploy.js
-const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
+cat <<'EOF' > scripts/deploy.js
+const { ethers } = require("hardhat");
 
-module.exports = buildModule("DAO", (m) => {
-  const dao = m.contract("DAO");
-  return { dao };
-});
+async function main() {
+  // Lấy tài khoản deploy
+  const [deployer] = await ethers.getSigners();
+  console.log(`Deploying contracts with account: ${deployer.address}`);
+
+  // Lấy số dư
+  const balance = await ethers.provider.getBalance(deployer.address);
+  console.log(`Account balance: ${ethers.formatEther(balance)} ETH`);
+
+  // Triển khai hợp đồng DAO
+  const DAO = await ethers.getContractFactory("DAO");
+  const dao = await DAO.deploy();
+
+  console.log("Deploying DAO...");
+  await dao.waitForDeployment();
+
+  console.log(`DAO deployed at: ${dao.target}`);
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
 EOF
 
 # Step 8: Deploying the smart contract
 echo "Deploying your DAO smart contract..."
-npx hardhat ignition deploy ./ignition/modules/deploy.js --network somnia
+npx hardhat run scripts/deploy.js --network somnia
 
 echo "🎉 Successfully deployed $COUNT contracts!"
 
