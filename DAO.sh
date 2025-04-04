@@ -138,7 +138,9 @@ PRIVATE_KEY=$PRIVATE_KEY
 EOF
  
 # Step 7: Create deploy script
-cat <<EOF > /ignition/module/deploy.js
+rm ignition/modules/Lock.js
+
+cat <<EOF > ignition/modules/deploy.js
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
 const dao = buildModule("DAO", (m) => {
