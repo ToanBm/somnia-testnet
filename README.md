@@ -6,13 +6,16 @@ git clone https://github.com/ToanBm/somnia-testnet.git && cd somnia-testnet && c
 ```
 ### Check you contract
 - Check your contract on Explorer! [Here](https://shannon-explorer.somnia.network/)
+
 ## 2. Transfer $STT token on Somnia Testnet
+### Clone the repository & Run the transfer script
 ```Bash
-chmod +x transfer.sh && ./transfer.sh
+git clone https://github.com/ToanBm/evm-transfer.git && cd evm-transfer && chmod +x setup.sh && ./setup.sh
 ```
 ### Check you contract
 - Check your contract on Explorer! [Here](https://shannon-explorer.somnia.network/)
-## 2. Build a Simple DAO Smart Contract
+
+## 3. Build a Simple DAO Smart Contract
 ### Create & Deploy the Smart Contract to Somnia
 ```Bash
 git clone https://github.com/ToanBm/somnia-testnet.git && cd somnia-testnet && chmod +x DAO.sh && ./DAO.sh
